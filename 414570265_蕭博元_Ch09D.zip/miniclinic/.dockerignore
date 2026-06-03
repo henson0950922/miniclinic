@@ -1,12 +1,13 @@
-target/
-*.log
-.mvn/
-.mvn/wrapper/maven-wrapper.jar
 .git/
 .gitignore
 .vscode/
 .idea/
+.mvn/wrapper/
 *.db
 miniclinic.db
 node_modules/
 .DS_Store
+.classpath
+.project
+*.iml
+HELP.md
