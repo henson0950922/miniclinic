@@ -1,0 +1,12 @@
+target/
+*.log
+.mvn/
+.mvn/wrapper/maven-wrapper.jar
+.git/
+.gitignore
+.vscode/
+.idea/
+*.db
+miniclinic.db
+node_modules/
+.DS_Store
