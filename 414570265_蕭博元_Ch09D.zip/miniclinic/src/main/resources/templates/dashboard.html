@@ -59,9 +59,14 @@
                 </td>
                 <td>
                     <button th:if="${appt.status == 'BOOKED'}"
-                            th:data-id="${appt.apptId}"
-                            type="button"
-                            onclick="cancelAppointment(this)">取消</button>
+                        th:data-id="${appt.apptId}"
+                        type="button"
+                        onclick="cancelAppointment(this)">取消</button>
+                    <button th:if="${appt.status == 'BOOKED'}"
+                        th:data-id="${appt.apptId}"
+                        type="button"
+                        onclick="completeAppointment(this)"
+                        style="margin-left:8px; background:#10B981; color:white; border:none; padding:6px 10px; border-radius:4px; cursor:pointer;">完成</button>
                 </td>
             </tr>
         </tbody>
@@ -91,6 +96,29 @@
             })
             .catch(() => {
                 alert('取消掛號失敗，請稍後再試。');
+            });
+        }
+        
+        function completeAppointment(button) {
+            const apptId = button.dataset.id;
+            if (!confirm('確定要標記此掛號為「看診完成」嗎？')) {
+                return;
+            }
+            fetch(`/api/appointments/${apptId}/status`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ status: 'COMPLETED' })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Complete failed');
+                }
+                location.reload();
+            })
+            .catch(() => {
+                alert('標記看診完成失敗，請稍後再試。');
             });
         }
     </script>

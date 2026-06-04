@@ -1,21 +1,28 @@
+# === 第一階段：編譯環境 ===
 FROM maven:3.9-eclipse-temurin-17-alpine AS build
 WORKDIR /app
 
-# 明確複製 pom.xml
-COPY pom.xml ./pom.xml
-
-# 複製 src 與 .mvn（必須包含 mvnw 執行所需的 Maven wrapper）
+# 1. 為了防止 .dockerignore 誤殺，我們不用 COPY . .
+# 2. 直接精準複製編譯必備的檔案
+COPY pom.xml ./
 COPY src ./src
-COPY .mvn ./.mvn
-COPY mvnw ./mvnw
-COPY mvnw.cmd ./mvnw.cmd
 
-# 使用非互動模式並跳過測試以縮短建置時間
-RUN mvn -B clean package -DskipTests
+# 如果你專案根目錄有 .mvn 夾或 mvnw，也可以順便複製（沒有也沒關係）
+# COPY .mvn ./.mvn
+# COPY mvnw ./
 
-# 執行階段只帶 JRE 與編譯好的一個 JAR
+# 執行編譯並跳過測試
+RUN mvn clean package -DskipTests
+
+# === 第二階段：運行環境 ===
 FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
-COPY --from=build /app/target/miniclinic-0.0.1-SNAPSHOT.jar app.jar
+
+# 從第一階段將打包好的 jar 檔複製過來
+COPY --from=build /app/target/*.jar app.jar
+
+# 確保 SQLite 有地方放（使用記憶體或臨時目錄，防止唯讀報錯）
+# 這裡先保留給 Java 執行
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "app.jar"]
+
+CMD ["java", "-jar", "app.jar"]
